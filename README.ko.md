@@ -8,7 +8,7 @@
 [![license MIT](https://img.shields.io/badge/license-MIT-black)](LICENSE)
 [![123 lines](https://img.shields.io/badge/transformer.py-123%EC%A4%84-black)](transformer.py)
 [![PyTorch only](https://img.shields.io/badge/%EC%9D%98%EC%A1%B4-PyTorch%20%ED%95%98%EB%82%98-black)](#돌려-보기)
-[![Colab에서 열기](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/YoungjuneKwon/ten-line-transformer/blob/main/notebook.ipynb)
+[![Colab에서 열기](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/YoungjuneKwon/ten-line-transformer/blob/main/notebook.ko.ipynb)
 
 한자리에서 다 읽을 만큼 작고, 그러면서 실제로 학습이 됩니다. 보통은 둘 중 하나를
 포기하는데, 그러지 않아도 된다는 것을 보이려고 있는 저장소입니다.
