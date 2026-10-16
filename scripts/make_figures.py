@@ -64,7 +64,10 @@ def use(lang):
 
 def save(fig, name, lang):
   OUT.mkdir(exist_ok=True)
-  fig.savefig(OUT / f"{name}.{lang}.png")
+  # The social card has to come out at exactly 1280x640, so it keeps the
+  # canvas it was given instead of being cropped to its ink.
+  exact = {"bbox_inches": None, "pad_inches": 0} if name == "social" else {}
+  fig.savefig(OUT / f"{name}.{lang}.png", **exact)
   plt.close(fig)
   print(f"  figures/{name}.{lang}.png")
 
@@ -346,7 +349,62 @@ def codemap(lang):
   return fig
 
 
-FIGURES = {"flow": flow, "codemap": codemap}
+# ------------------------------------------------------ the social preview
+
+def social(lang):
+  """1280x640 for GitHub's social preview — the card every shared link shows.
+
+  GitHub has no API for setting it; upload this by hand under
+  Settings -> General -> Social preview. English only: the card is seen by
+  whoever shares the link, not by whoever reads the README.
+  """
+  cols = [("Qwen2.5", "modeling_qwen2.py", MAPPING["models"]["qwen2"]["lines"]),
+          ("ten-line-transformer", "transformer.py", MAPPING["ours"]["lines"]),
+          ("OLMo 2", "modeling_olmo2.py", MAPPING["models"]["olmo2"]["lines"])]
+
+  fig, ax = plt.subplots(figsize=(6.4, 3.2))
+  ax.set_xlim(0, 128); ax.set_ylim(0, 64); ax.axis("off")
+  fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
+
+  ax.text(9, 55.5, "A transformer in one file.", ha="left", va="center",
+          fontsize=17, color=INK, fontweight="bold", fontfamily=SANS)
+  ax.text(9, 48.0, "123 lines — and one training step is ten of them.",
+          ha="left", va="center", fontsize=11, color=MUTED, fontfamily=SANS)
+
+  # Bars in proportion to file length. At thumbnail size the heights are the
+  # whole message; the numbers are for anyone who looks twice.
+  tallest = max(n for _, _, n in cols)
+  base, span = 17.0, 24.0
+  bw, gap = 22.0, 11.0
+  x = (128 - (3 * bw + 2 * gap)) / 2
+  for (title, stem, n), hue in zip(cols, (HUES[0], HUES[3], HUES[2])):
+    h = span * n / tallest
+    ours = stem == "transformer.py"
+    ax.add_patch(FancyBboxPatch((x, base), bw, h, boxstyle="square,pad=0",
+                                fc=hue if ours else "#e8e8e6",
+                                ec=hue if ours else RULE, lw=1.2, zorder=2))
+    ax.text(x + bw / 2, base + h + 2.8, str(n), ha="center", va="center",
+            fontsize=15 if ours else 12.5, fontfamily=MONO,
+            fontweight="bold" if ours else "normal",
+            color=hue if ours else MUTED)
+    ax.text(x + bw / 2, 13.2, title, ha="center", va="center",
+            fontsize=8.5 if ours else 8, fontfamily=SANS,
+            fontweight="bold" if ours else "normal",
+            color=INK if ours else MUTED)
+    ax.text(x + bw / 2, 9.8, stem, ha="center", va="center",
+            fontsize=6.5, fontfamily=MONO, color=FAINT)
+    x += bw + gap
+
+  ax.plot([9, 119], [6.6, 6.6], lw=0.8, color=RULE)
+  ax.text(9, 3.4, "Same places, mapped line by line.", ha="left", va="center",
+          fontsize=8, color=MUTED, fontfamily=SANS)
+  ax.text(119, 3.4, "github.com/YoungjuneKwon/ten-line-transformer",
+          ha="right", va="center", fontsize=8, color=INK, fontfamily=MONO)
+  return fig
+
+
+FIGURES = {"flow": flow, "codemap": codemap, "social": social}
+SINGLE_LANGUAGE = {"social": "en"}      # the card is not per-reader
 
 
 def main(argv):
@@ -356,9 +414,21 @@ def main(argv):
   if unknown:
     sys.exit(f"unknown: {' '.join(unknown)}\n"
              f"figures: {' '.join(FIGURES)}\nlanguages: {' '.join(LANGS)}")
+  done = set()
   for lang in langs:
     use(lang)
     for name in names:
+      only = SINGLE_LANGUAGE.get(name)
+      if only and (name in done or (only not in langs and lang != langs[0])):
+        continue
+      if only:
+        if only in langs and lang != only:
+          continue
+        use(only)
+        save(FIGURES[name](only), name, only)
+        use(lang)
+        done.add(name)
+        continue
       save(FIGURES[name](lang), name, lang)
 
 
