@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: ten-line-transformer
+message: >-
+  A transformer in one Python file, 123 lines, where one training step is ten
+  of them. If you use it in teaching or in a write-up, this is how to cite it.
+type: software
+authors:
+  - family-names: Kwon
+    given-names: Youngjune
+repository-code: https://github.com/YoungjuneKwon/ten-line-transformer
+abstract: >-
+  A single-file transformer with training, validation and generation in 123
+  lines of PyTorch, written to be read rather than extended. The seed is fixed
+  and the loss values are reproducible; every place in the file is mapped line
+  by line to the shipping model code of Qwen2.5, Llama and OLMo 2. Built on
+  Andrej Karpathy's nanoGPT (MIT) and substantially rewritten.
+keywords:
+  - transformer
+  - language model
+  - pytorch
+  - from scratch
+  - reproducibility
+  - teaching
+license: MIT

@@ -1,0 +1,39 @@
+name: A claim is wrong
+description: Something in the README, NOTICE.md or docs/line-mapping.md does not match the code or the sources.
+title: "wrong: "
+labels: ["correction"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Attribution being **correct** matters more here than it being
+        flattering. If `NOTICE.md` understates what came from nanoGPT, or a row
+        in `docs/line-mapping.md` points at the wrong lines, that is a real bug.
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      options:
+        - docs/line-mapping.md (a row points at the wrong code)
+        - NOTICE.md (the nanoGPT lineage table)
+        - README (the ten steps, the shapes, the parameter counts)
+        - A figure disagrees with the code
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: claim
+    attributes:
+      label: The claim, quoted
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it is wrong
+      description: A link to the line that contradicts it is the strongest form.
+    validations:
+      required: true

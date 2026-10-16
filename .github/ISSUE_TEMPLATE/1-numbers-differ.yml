@@ -1,0 +1,63 @@
+name: My numbers are different
+description: The loss values you got are not the ones in the README. This is the report this repository most wants.
+title: "numbers differ: "
+labels: ["reproduction"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you — a reproduction that fails is worth more here than a star.
+
+        **Before you fill this in**, this one command assembles the whole report
+        for you and prints it ready to paste:
+
+        ```bash
+        python scripts/check_reproduction.py
+        ```
+
+        If it says SAME, there is nothing to report. If it says DIFFERENT, paste
+        what it printed into the two boxes below.
+
+  - type: textarea
+    id: output
+    attributes:
+      label: The full output
+      description: The whole thing, not the rows that differ. Nothing trimmed.
+      render: text
+      placeholder: |
+          step     train       val     sec
+             0    4.2006    3.9836     0.2
+            20    ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: What you ran it on
+      description: The checker prints this block. Otherwise - torch version, Python version, OS, CPU.
+      render: text
+      placeholder: |
+        torch      2.x.x
+        python     3.x.x
+        platform   ...
+        machine    x86_64
+    validations:
+      required: true
+
+  - type: input
+    id: command
+    attributes:
+      label: The exact command
+      description: The numbers belong to the command, not to the step. 200 steps and 2000 steps report on different schedules, so the loss at step 200 is not the same number in both.
+      value: "OMP_NUM_THREADS=1 python transformer.py 200 input.txt"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: corpus
+    attributes:
+      label: The corpus
+      options:
+        - label: "`input.txt` is md5 `6fb458f1232090904fb40fe944165e91` (the checker verifies this for you)"
+          required: false

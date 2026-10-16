@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: How does this code work? / Ask about the transformer
+    url: https://github.com/YoungjuneKwon/ten-line-transformer/discussions
+    about: Questions belong in Discussions. Issues are for things that are wrong.
+  - name: Run it in your browser first
+    url: https://colab.research.google.com/github/YoungjuneKwon/ten-line-transformer/blob/main/notebook.ipynb
+    about: Nothing to install. If the numbers differ there too, that is worth reporting.

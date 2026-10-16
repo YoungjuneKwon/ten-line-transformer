@@ -1,0 +1,7 @@
+# The corpus is downloaded, not committed — NOTICE.md pins its md5 instead.
+input.txt
+
+__pycache__/
+*.pyc
+*.pt
+.venv/

@@ -1,0 +1,45 @@
+name: reproduce
+
+# The claim on the front page is that you get the same loss values I did.
+# This runs that claim on a machine that is not mine, on every push and once a
+# week, so the claim is either true today or visibly broken.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  same-numbers:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: install torch (cpu wheel)
+        run: pip install --index-url https://download.pytorch.org/whl/cpu torch
+
+      - name: fetch the corpus
+        run: |
+          curl -fsSLO https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
+          echo "6fb458f1232090904fb40fe944165e91  input.txt" | md5sum -c -
+
+      - name: what this ran on
+        run: |
+          python -c "import torch, platform; print('torch', torch.__version__); print(platform.platform()); print(platform.processor())"
+          lscpu | grep -E "^Model name|^Flags" | cut -c1-200 || true
+
+      - name: same numbers?
+        run: python scripts/check_reproduction.py
