@@ -43,3 +43,30 @@ jobs:
 
       - name: same numbers?
         run: python scripts/check_reproduction.py
+
+  # The issue forms are how a stranger reports that the numbers differ. If one
+  # of them stops validating, that path dies quietly. It should die loudly.
+  issue-forms:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install jsonschema pyyaml
+      - name: validate against GitHub's published schema
+        run: |
+          curl -fsSL https://json.schemastore.org/github-issue-forms.json -o /tmp/forms.json
+          curl -fsSL https://json.schemastore.org/github-issue-config.json -o /tmp/config.json
+          python - <<'PY'
+          import glob, json, sys, yaml
+          from jsonschema import Draft7Validator
+          forms = json.load(open("/tmp/forms.json"))
+          config = json.load(open("/tmp/config.json"))
+          bad = False
+          for path in sorted(glob.glob(".github/ISSUE_TEMPLATE/*.yml")):
+              schema = config if path.endswith("config.yml") else forms
+              errors = list(Draft7Validator(schema).iter_errors(yaml.safe_load(open(path))))
+              print(("FAIL " if errors else "ok   ") + path)
+              for e in errors:
+                  bad = True
+                  print(f"       {list(e.path)}: {e.message}")
+          sys.exit(1 if bad else 0)
+          PY
