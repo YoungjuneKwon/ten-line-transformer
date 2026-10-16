@@ -1,90 +1,226 @@
 # ten-line-transformer
 
-[English](README.en.md)
+**🇬🇧 English** · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md) · [🇨🇳 中文](README.zh.md)
 
-트랜스포머 하나가 파이썬 파일 한 장에 들어 있습니다. **123줄**이고 학습·검증·생성이
-다 있습니다. 모듈 수준 변수도, 주석도 없습니다 — 함수 이름이 주석을 대신합니다.
+A transformer in one Python file. **123 lines**, with training, validation and
+generation all in it. No module-level variables and no comments — the function
+names stand in for the comments.
 
-집필 중인 책 『열 줄로 읽는 트랜스포머』(가제)가 이 파일을 처음부터 끝까지 읽습니다.
-책 없이 코드만 읽어도 됩니다.
+[![license MIT](https://img.shields.io/badge/license-MIT-black)](LICENSE)
+[![123 lines](https://img.shields.io/badge/transformer.py-123%20lines-black)](transformer.py)
+[![PyTorch only](https://img.shields.io/badge/dependencies-PyTorch%20only-black)](#running-it)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/YoungjuneKwon/ten-line-transformer/blob/main/notebook.ipynb)
 
-[![Colab에서 열기](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/YoungjuneKwon/ten-line-transformer/blob/main/notebook.ipynb)
+Small enough to read in one sitting, complete enough to train. Those two are
+usually traded against each other, and this repository exists to show they do
+not have to be.
 
-## 학습 한 스텝은 열 줄입니다
+---
+
+## One training step is ten lines
 
 ```python
 tokens, answers = get_batch()               # (B, T), (B, T)
 optimizer.zero_grad(set_to_none=True)
 x = wte[tokens] + wpe[:T]                   # (B, T, C)
-for blk in blocks:                          # n_block 번
+for blk in blocks:                          # n_block times
     x = x + blk.attn(layer_norm(x))         # (B, T, C)
     x = x + blk.mlp(layer_norm(x))          # (B, T, C)
 logits = layer_norm(x) @ wue                # (B, T, V)
-loss = cross_entropy(logits, answers)       # 스칼라 1개
+loss = cross_entropy(logits, answers)       # one scalar
 loss.backward()
 optimizer.step()
 ```
 
-실제 파일에서는 가운데 여섯 줄이 `Transformer.forward()` 안에 있고, 나머지 넷이
-`train()` 에 있습니다.
+In the actual file the middle six lines sit in
+[`Transformer.forward()`](transformer.py#L66-L72) and the other four in
+[`train()`](transformer.py#L80-L94).
 
-## 돌려 보기
+![one training step, with the shape at each point](figures/flow.en.png)
 
-브라우저만 있으면 위의 Colab 배지로 바로 돌아갑니다. 내 컴퓨터에서 돌리려면
-파이토치와 텍스트 파일 하나가 필요합니다.
+The dashed line separates two clocks. Everything above it happens **once**, when
+the text is loaded; everything below happens on **every step**, and that is the
+ten lines. `get_batch` is the arrow that crosses the line — the array is built
+once and drawn from each step.
+
+Read the right-hand column on its own and you have the whole shape story.
+`(B, T)` goes in as integers, becomes `(B, T, C)` floats, keeps that shape all
+the way through the blocks, opens out to `(B, T, V)` at the last matrix, and
+collapses to one number.
+
+---
+
+## Running it
+
+The Colab badge above needs nothing but a browser. On your own machine you need
+PyTorch and one text file.
 
 ```bash
 pip install torch
 curl -O https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
-python transformer.py 200 input.txt
+OMP_NUM_THREADS=1 python transformer.py 200 input.txt
 ```
 
-CPU 로 돌아갑니다. 그래픽카드는 없어도 됩니다.
+It runs on CPU. No graphics card required.
 
-## 같은 숫자가 나옵니다
+---
 
-시드를 1337로 고정했습니다. 200 스텝까지 돌리면 손실이 이렇게 내려갑니다.
+## You get the same numbers
 
-```
-  step     train       val
-     0    4.2006    3.9836
-   100    2.7746    2.7454
-   200    2.5400    2.4785
-```
-
-걸리는 시간은 기기마다 다릅니다. 손실 값은 다르지 않습니다.
-
-**숫자가 다르게 나오면 이슈를 열어 주십시오.** 이 저장소가 가장 듣고 싶은 것이고,
-무엇을 적어 주시면 되는지는 [CONTRIBUTING.md](CONTRIBUTING.md) 에 있습니다.
-
-## 모델
+The seed is fixed at 1337. This is the whole output of the command above on a
+CPU-only container, nothing trimmed:
 
 ```
-B=32  T=64  C=128  H=4  n_block=4      학습되는 텐서 19장, 숫자 811,264개
+  step     train       val     sec
+     0    4.2006    3.9836     0.2
+    20    3.4308    3.4368     3.0
+    40    3.2868    3.3116     5.7
+    60    2.9855    3.1101     8.4
+    80    2.7989    2.8680    11.2
+   100    2.7746    2.7454    14.1
+   120    2.6514    2.6279    16.8
+   140    2.6177    2.6219    19.5
+   160    2.5419    2.6296    22.2
+   180    2.5292    2.5087    24.9
+   200    2.5400    2.4785    27.5
+```
+
+The `sec` column differs by machine. **The loss values do not.**
+
+One thing to know before you compare: the numbers belong to the *command*, not
+to the step. `transformer.py` reports ten times whatever you ask for, and each
+report draws a validation batch from the same generator the training batches
+come from. Ask for 2000 steps and the reports land every 200, so the draws
+differ and step 200 reads `2.4812` instead of `2.5400`. Same seed, same code,
+different schedule of draws. Compare runs of the same command.
+
+**If your numbers differ for the same command, please open an issue.** That is
+the one thing this repository most wants to hear about — see
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
+### What it writes after those 27 seconds
+
+```
+AGORAnt ther
+F:
+uan'se tes? ce ares cikny alllow ld I
+Sor sin.
+
+ITander thewineungh hlelus met t there pr sangand berdar the,, the, dpas our me t here,
+T bro winomerese vean wil:
+Ak, migpr, and ttmy foungomele fe ble, t theran busmun mesI,
+```
+
+Not English. But look at what 200 steps already bought: lines break at about the
+right length, a name in capitals is followed by a colon, an apostrophe sits
+inside a word rather than outside it. Nobody wrote a rule for any of that. The
+ten lines above are the only thing that ran.
+
+### And after four and a half minutes
+
+`OMP_NUM_THREADS=1 python transformer.py 2000 input.txt` — 265 seconds on the
+same CPU, loss 1.64:
+
+```
+ISABELLA:
+Whas our tleagues the say! or would so piar.
+Two low hereful Lond May to those here enfenablish,
+That is that her here come is some not that thy whid
+Is chart gare of certy, and cantive she duke again,
+Let I same the heart son's good fathen again,
+To be that mone at that pray of heaved have both
+As the gates the send speak in the did.
+
+BARTICHARD:
+Thou day the king, and of Englest, is an breath;
+```
+
+`ISABELLA` is a real speaker in the corpus — she has 129 lines in it.
+`BARTICHARD` has none: the model assembled that name out of pieces that look
+like the names it saw. Both behaviours come from the same ten lines, and you can
+watch them arrive in under five minutes on a laptop.
+
+---
+
+## The model
+
+```
+B=32  T=64  C=128  H=4  n_block=4      19 learned tensors, 811,264 numbers
 wte (65,128)  wpe (64,128)  wue (128,65)
 blocks.N.attn.qkv (384,128)  attn.proj (128,128)  mlp.fc (512,128)  mlp.out (128,512)
 ```
 
-편향, 드롭아웃, 학습되는 정규화 계수, 가중치 묶기는 **일부러 뺐습니다.** 구조를
-보이는 데 필요하지 않고, 빼면 읽을 것이 줄어듭니다.
+Biases, dropout, learned normalization coefficients and weight tying are
+**left out on purpose.** They are not needed to show the structure, and leaving
+them out leaves less to read.
 
-## 어디서 왔나
+---
 
-온라인에 공개된 [nanoGPT](https://github.com/karpathy/nanoGPT)를 바탕에 두고 파이토치로
-대대적으로 다시 썼습니다. 글자 단위로 비교하면 파일 전체가 1.3%, 어텐션 본문이 22.6%
-겹칩니다. 그런데 **계산의 순서는 열 단계가 같습니다.**
+## The same places are in the real models
+
+The claim that is easy to make and hard to check is *"this is how the big ones
+work too."* So here it is drawn rather than asserted. Both outer columns are
+production model code from
+[huggingface/transformers](https://github.com/huggingface/transformers) pinned
+at tag `v5.18.0`. Every file is laid out whole, top to bottom — the symbols were
+taken exhaustively with `ast`, not picked by hand.
+
+![the same symbols in Qwen2.5, this file, and OLMo 2](figures/codemap.en.png)
+
+Four symbols and 43 lines here do the work that takes seven symbols and 264
+lines in Qwen2.5. Almost all of the difference is parts this file leaves out —
+rotary embeddings, grouped-query attention, caching, configuration plumbing —
+not a different idea.
+
+**[docs/line-mapping.md](docs/line-mapping.md) is the table behind the
+picture.** For each place it gives our line number and the matching line range
+in Qwen2.5, Llama and OLMo 2, as links that jump straight to the line. Click any
+row and you are looking at the real file. If a row is wrong, that is a bug worth
+an issue.
+
+---
+
+## Where it came from
+
+Rewritten substantially in PyTorch on top of
+[nanoGPT](https://github.com/karpathy/nanoGPT), which is public online.
+Compared character by character, 1.3% of the whole file and 22.6% of the
+attention body overlap. But **the order of the computation is the same ten
+steps.**
 
 ```
-qkv 사영 -> 3분할 -> 헤드 분리 -> q·kᵀ -> √ 로 나눔
-        -> 마스크 -> softmax -> @ v -> 헤드 병합 -> 출력 사영
+qkv projection -> split in 3 -> separate heads -> q·kᵀ -> divide by √
+        -> mask -> softmax -> @ v -> merge heads -> output projection
 ```
 
-다시 쓰는 동안 결과가 달라지지 않았는지 매번 확인했습니다. 같은 시드로 200 스텝을
-돌리면 학습된 숫자 811,264개가 **한 비트도 다르지 않습니다**(스레드를 하나로
-고정했을 때. 여러 스레드로 돌리면 더하는 순서가 달라져 마지막 자리가 흔들립니다).
+The result was checked against the original at every step of the rewrite. Run
+200 steps with the same seed and the 811,264 learned numbers do not differ by
+**a single bit** (with threads pinned to one; with several threads the addition
+order changes and the last digit wobbles).
 
-## 라이선스
+A line-by-line map of what came from where is in [NOTICE.md](NOTICE.md).
 
-MIT. 출처 고지는 [NOTICE.md](NOTICE.md) 에 있습니다.
+---
 
-실험 코드와 측정 로그는 책과 함께 공개합니다.
+## The book
+
+A book in progress, *Reading a Transformer in Ten Lines* (working title,
+Korean), reads this file from the first line to the last. The code stands on its
+own without the book, and the book is not in this repository.
+
+## Contributing
+
+A correction is worth more here than a feature — the file is meant to be read,
+not to grow. [CONTRIBUTING.md](CONTRIBUTING.md) lists the claims this repository
+would most like to see falsified.
+
+Questions about how the code works belong in
+[Discussions](https://github.com/YoungjuneKwon/ten-line-transformer/discussions).
+Issues are for things that are wrong.
+
+## License
+
+MIT. Third-party attribution is in [NOTICE.md](NOTICE.md).
+
+The figures are generated, not drawn — `python scripts/make_figures.py` redraws
+every one of them in all four languages.

@@ -1,4 +1,90 @@
-# NOTICE — 제3자 저작물 고지
+# NOTICE — third-party attribution
+
+[English](#notice--third-party-attribution) · [한국어](#한국어)
+
+The code in this repository is distributed under the MIT License (see
+`LICENSE`). The book manuscript is not part of this repository and its
+copyright is reserved.
+
+---
+
+## 1. nanoGPT (MIT License)
+
+`transformer.py` is **a rewrite built on Andrej Karpathy's nanoGPT.** That
+material is covered by the licence below, reproduced in full.
+
+Source: https://github.com/karpathy/nanoGPT (`model.py`)
+
+Compared character by character, 1.3% of the whole file and 22.6% of the
+attention body overlap. But **the order of the computation is the same ten
+steps.** Here is what came from where, line by line.
+
+| `transformer.py` | nanoGPT `model.py` | what differs |
+|---|---|---|
+| 24–41 `Attention` | `CausalSelfAttention` | **Same order of computation.** The names differ (`c_attn`→`qkv`, `c_proj`→`proj`, `bias`→`mask`). Two dropouts removed |
+| 35–36 `qkv(x).split` → `view` → `transpose` | the same three lines | Even the shape comment `# (B, nh, T, hs)` is the same. We fold the three copies into one comprehension |
+| 37 `(q @ k.transpose(-2,-1)) / math.sqrt(self.hs)` | `… * (1.0 / math.sqrt(k.size(-1)))` | Written as a division instead of a multiplication |
+| 38 `masked_fill(self.mask[…] == 0, -inf)` | `masked_fill(self.bias[…] == 0, -inf)` | Only the buffer name differs |
+| 39–41 `softmax @ v` → `transpose().contiguous().view()` → `proj` | the same three lines | `resid_dropout` removed |
+| 43–50 `MLP` | `MLP` | `c_fc`/`c_proj` → `fc`/`out`. The 4× expansion and GELU are the same. Bias and dropout removed |
+| 69–70 `x = x + blk.attn(layer_norm(x))` | `x = x + self.attn(self.ln_1(x))` | **Literally the same shape of line.** We put it in `Transformer.forward` rather than inside a Block |
+| 68 `self.wte[tokens] + self.wpe[:T]` | `tok_emb + pos_emb` | The same sum. We use a Parameter directly instead of `nn.Embedding` |
+| 18–19 `layer_norm` | the `LayerNorm` class | **The learned scale and shift are removed.** A class became one function |
+| 58–72 `Transformer` | `GPT` | `from_pretrained`, `configure_optimizers` and `crop_block_size` were not carried over |
+| 4–16 `load_data`, `get_batch` | data preparation in `train.py` | Rewritten. nanoGPT reads a `.bin` through memmap |
+| 74–123 `report`, `train`, `generate`, `cli`, `main` | `train.py`, `sample.py` | Rewritten. What was spread across two files is gathered into one |
+
+**`Attention`, `MLP` and the two residual lines carry the strongest lineage.**
+That is computation handed down from the 2017 paper, and there was no reason to
+change it. The rest was rewritten in order to be read.
+
+The judgements behind removing global state and making the names follow the
+shapes are discussed in the book.
+
+```
+MIT License
+
+Copyright (c) 2022 Andrej Karpathy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## 2. input.txt — tiny shakespeare
+
+```
+size   1,115,394 bytes
+md5    6fb458f1232090904fb40fe944165e91
+```
+
+The content is public-domain Shakespeare. This particular file is byte for byte
+the one distributed widely through Andrej Karpathy's `char-rnn` and
+`ng-video-lecture` repositories. Neither repository carries a licence file, and
+our judgement is that no separate copyright can be claimed over a concatenation
+of public-domain text.
+
+**Do not replace this file.** Replacing it changes every measured number in the
+book and in this repository. For a reader to get the same numbers it has to be
+the same file, and the md5 above is how that is checked.
+
+---
+
+## 한국어
 
 이 저장소의 코드는 MIT License 로 배포한다(`LICENSE` 참조).
 책 원고는 이 저장소에 포함되지 않으며 저작권을 유보한다.
