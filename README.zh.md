@@ -5,6 +5,7 @@
 一个 Transformer 放在一个 Python 文件里。**123 行**，训练、验证、生成全都在里面。
 没有模块级变量，也没有注释 —— 函数名就是注释。
 
+[![reproduce](https://github.com/YoungjuneKwon/ten-line-transformer/actions/workflows/reproduce.yml/badge.svg)](https://github.com/YoungjuneKwon/ten-line-transformer/actions/workflows/reproduce.yml)
 [![license MIT](https://img.shields.io/badge/license-MIT-black)](LICENSE)
 [![123 lines](https://img.shields.io/badge/transformer.py-123%20%E8%A1%8C-black)](transformer.py)
 [![PyTorch only](https://img.shields.io/badge/%E4%BE%9D%E8%B5%96-%E5%8F%AA%E6%9C%89%20PyTorch-black)](#跑一遍)
@@ -62,6 +63,16 @@ OMP_NUM_THREADS=1 python transformer.py 200 input.txt
 
 ## 你会得到同样的数
 
+不用你用眼睛去对十一行。一条命令就能回答。
+
+```bash
+python scripts/check_reproduction.py
+```
+
+它会跑一遍训练、核对语料的 md5、逐行比对，然后告诉你 **SAME**（相同）还是
+**DIFFERENT**（不同）。如果不同，它会把可以直接贴进 issue 的那一块打印出来 ——
+torch 版本和平台已经替你填好了。
+
 随机种子固定为 1337。下面是上面那条命令的完整输出，取自一台只有 CPU 的容器，
 没有删减。
 
@@ -80,7 +91,16 @@ OMP_NUM_THREADS=1 python transformer.py 200 input.txt
    200    2.5400    2.4785    27.5
 ```
 
-`sec` 这一列因机器而异。**损失的数值不会。**
+`sec` 这一列因机器而异。**损失的数值不会** —— 而且这不只是我一面之词。页首那枚徽章
+会在 GitHub 的 runner 上，每次 push 以及每周一次，跑的正是这同一个比对。最近一次
+在与我毫无共同之处的硬件和软件上，十一行全部吻合。
+
+| | 我这边，基准值的来源 | GitHub 的 runner |
+|---|---|---|
+| CPU | 只有 CPU 的容器 | AMD EPYC 7763 · Azure |
+| torch | 2.14.0+cpu | 2.14.1+cpu |
+| Python | 3.11.2 | 3.11.17 **和** 3.12 |
+| glibc | 2.36 | 2.39 |
 
 对照之前有一点要先知道：这些数属于 **命令**，不属于步数。`transformer.py` 会把你
 要的步数分成十次来报告，而每次报告都会从训练批次所用的同一个随机源里抽一个验证
@@ -135,6 +155,17 @@ Thou day the king, and of Englest, is an breath;
 
 ## 模型
 
+六个字母承载了全部配置。它们和代码里、以及上面每一张图里用的是同一批字母。
+
+| | | |
+|---|---|---|
+| `B` | 批 —— 一次训练多少条序列 | 32 |
+| `T` | 时间 —— 模型最多能往回看多少个字符 | 64 |
+| `C` | 通道 —— 每个字符所变成的向量的宽度 | 128 |
+| `H` | 头 —— 注意力头的个数，每个宽 `C/H` | 4 |
+| `V` | 词表 —— 语料里不同字符的个数，是数出来的 | 65 |
+| `n_block` | 注意力和 MLP 叠多少层 | 4 |
+
 ```
 B=32  T=64  C=128  H=4  n_block=4      可学习张量 19 个，数 811,264 个
 wte (65,128)  wpe (64,128)  wue (128,65)
@@ -181,6 +212,23 @@ qkv 投影 -> 三分 -> 分头 -> q·kᵀ -> 除以 √
 **一个比特都不差**（把线程固定为 1 时。多线程时相加顺序会变，最后一位会抖动）。
 
 哪一处来自哪里的逐行对照写在 [NOTICE.md](NOTICE.md) 里。
+
+### 那为什么不直接读 nanoGPT
+
+多数时候确实该这样。对绝大部分用途来说它是更好的仓库，没有它也就没有这个文件。
+不同之处在于 **各自是为什么而做的**。
+
+| | nanoGPT | 这里 |
+|---|---|---|
+| 分散在 | `model.py` 330 行 · `train.py` 336 · `sample.py` 89 · `configurator.py` 47 | 一个文件，123 行 |
+| 为何而做 | **训练** —— GPT-2 权重、DDP、`torch.compile`、一套配置系统 | **被读** —— 这些一概没有 |
+| 模块级状态 | 有，配置就住在那里 | 没有 |
+| 注释 | 有 | 没有，这是设计 —— 名字在做这件事 |
+| 公开的数 | 没有 | 有。种子固定，[每次 push 都比对](#你会得到同样的数) |
+| 与真实模型的对应 | 没有 | [逐行对照](docs/line-mapping.md)，固定在标签上 |
+
+想 **训练** 一个模型，就用 nanoGPT。想用一个下午 **读完** 一个，然后自己去跟
+Qwen2.5 对照，那就是这个仓库。
 
 ---
 

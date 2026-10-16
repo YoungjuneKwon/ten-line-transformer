@@ -6,6 +6,7 @@ A transformer in one Python file. **123 lines**, with training, validation and
 generation all in it. No module-level variables and no comments — the function
 names stand in for the comments.
 
+[![reproduce](https://github.com/YoungjuneKwon/ten-line-transformer/actions/workflows/reproduce.yml/badge.svg)](https://github.com/YoungjuneKwon/ten-line-transformer/actions/workflows/reproduce.yml)
 [![license MIT](https://img.shields.io/badge/license-MIT-black)](LICENSE)
 [![123 lines](https://img.shields.io/badge/transformer.py-123%20lines-black)](transformer.py)
 [![PyTorch only](https://img.shields.io/badge/dependencies-PyTorch%20only-black)](#running-it)
@@ -67,6 +68,16 @@ It runs on CPU. No graphics card required.
 
 ## You get the same numbers
 
+One command answers it, so you do not have to compare eleven rows by eye:
+
+```bash
+python scripts/check_reproduction.py
+```
+
+It runs the training, checks the corpus md5, compares every row, and says SAME
+or DIFFERENT. If it says DIFFERENT it prints the block to paste into an issue,
+with your torch version and platform already filled in.
+
 The seed is fixed at 1337. This is the whole output of the command above on a
 CPU-only container, nothing trimmed:
 
@@ -85,7 +96,17 @@ CPU-only container, nothing trimmed:
    200    2.5400    2.4785    27.5
 ```
 
-The `sec` column differs by machine. **The loss values do not.**
+The `sec` column differs by machine. **The loss values do not** — and that is
+not just my word for it. The badge at the top runs exactly this on GitHub's
+runners, on every push and once a week. Most recently it matched all eleven
+rows on hardware and software that share nothing with mine:
+
+| | mine, where the reference came from | GitHub's runner |
+|---|---|---|
+| CPU | a CPU-only container | AMD EPYC 7763, Azure |
+| torch | 2.14.0+cpu | 2.14.1+cpu |
+| Python | 3.11.2 | 3.11.17 **and** 3.12 |
+| glibc | 2.36 | 2.39 |
 
 One thing to know before you compare: the numbers belong to the *command*, not
 to the step. `transformer.py` reports ten times whatever you ask for, and each
@@ -144,6 +165,18 @@ watch them arrive in under five minutes on a laptop.
 
 ## The model
 
+Six letters carry the whole configuration, and they are the same six letters
+used in the code and in every figure above.
+
+| | | |
+|---|---|---|
+| `B` | batch — how many sequences are trained on at once | 32 |
+| `T` | time — how many characters the model can look back over | 64 |
+| `C` | channels — the width of the vector each character becomes | 128 |
+| `H` | heads — how many attention heads, each `C/H` wide | 4 |
+| `V` | vocabulary — distinct characters in the corpus, counted from it | 65 |
+| `n_block` | how many times attention and MLP are stacked | 4 |
+
 ```
 B=32  T=64  C=128  H=4  n_block=4      19 learned tensors, 811,264 numbers
 wte (65,128)  wpe (64,128)  wue (128,65)
@@ -199,6 +232,23 @@ The result was checked against the original at every step of the rewrite. Run
 order changes and the last digit wobbles).
 
 A line-by-line map of what came from where is in [NOTICE.md](NOTICE.md).
+
+### Then why not just read nanoGPT?
+
+Often you should. It is the better repository for most purposes and this one
+would not exist without it. The difference is what each is built for.
+
+| | nanoGPT | here |
+|---|---|---|
+| spread over | `model.py` 330 lines, `train.py` 336, `sample.py` 89, `configurator.py` 47 | one file, 123 |
+| built to | **train** — GPT-2 weights, DDP, `torch.compile`, a config system | **be read** — none of that |
+| module-level state | yes, the config lives there | none |
+| comments | yes | none, by design — the names do that work |
+| published numbers | no | yes, fixed seed, [checked on every push](#you-get-the-same-numbers) |
+| mapped to shipping models | no | [line by line](docs/line-mapping.md), pinned to a tag |
+
+If you want to train a model, use nanoGPT. If you want to read one in an
+afternoon and then go check it against Qwen2.5 yourself, that is what this is.
 
 ---
 

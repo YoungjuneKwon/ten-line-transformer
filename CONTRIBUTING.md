@@ -8,11 +8,18 @@ correction.
 
 ## The one thing I most want to hear
 
-Run this and tell me if your numbers differ from mine.
+One command does the whole thing — runs it, checks the corpus md5, compares
+every row, and prints a ready-to-paste report if anything differs.
 
 ```bash
 pip install torch
 curl -O https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
+python scripts/check_reproduction.py
+```
+
+It is the same as running this by hand and reading the table yourself:
+
+```bash
 OMP_NUM_THREADS=1 python transformer.py 200 input.txt
 ```
 
@@ -25,9 +32,14 @@ Expected, on any machine, with the seed fixed at 1337:
    200    2.5400    2.4785
 ```
 
-If you see different values, **please open an issue** with your PyTorch version,
-platform, CPU/GPU and the output you got. A reproduction that fails is worth
-more to me than a star.
+If you see different values, **please open an issue** — there is
+[a form for it](https://github.com/YoungjuneKwon/ten-line-transformer/issues/new?template=1-numbers-differ.yml)
+that asks for exactly what is needed. A reproduction that fails is worth more
+to me than a star.
+
+The same check runs on GitHub's runners on every push and once a week, so the
+badge on the front page tells you whether it held somewhere that is not my
+machine.
 
 (Timing differs by machine and is not part of the claim. With more than one
 thread the addition order changes and the last digit can move — that is why the
@@ -76,7 +88,14 @@ rather than Issues. Issues are for things that are wrong.
 
 ### 가장 듣고 싶은 것 하나
 
-아래를 돌려 보고, 숫자가 저와 다르면 알려 주십시오.
+명령 하나가 다 합니다 — 돌리고, 말뭉치 md5 를 보고, 모든 행을 대조하고,
+다르면 그대로 붙일 보고서를 찍어 줍니다.
+
+```bash
+python scripts/check_reproduction.py
+```
+
+손으로 이렇게 돌리고 표를 직접 읽는 것과 같습니다.
 
 ```bash
 OMP_NUM_THREADS=1 python transformer.py 200 input.txt
@@ -91,8 +110,12 @@ OMP_NUM_THREADS=1 python transformer.py 200 input.txt
    200    2.5400    2.4785
 ```
 
-다른 값이 나오면 **이슈를 열어 주십시오.** 파이토치 버전, 플랫폼, CPU/GPU, 그리고
-받으신 출력을 적어 주시면 됩니다. 재현이 깨졌다는 보고가 별 하나보다 가치 있습니다.
+다른 값이 나오면 **이슈를 열어 주십시오.** 필요한 것만 묻는
+[양식](https://github.com/YoungjuneKwon/ten-line-transformer/issues/new?template=1-numbers-differ.yml)
+을 만들어 두었습니다. 재현이 깨졌다는 보고가 별 하나보다 가치 있습니다.
+
+같은 대조가 매 푸시와 매주 한 번 깃헙 러너에서 돕니다. 앞면의 배지가 제 기계가
+아닌 곳에서도 성립했는지를 말해 줍니다.
 
 (걸리는 시간은 기기마다 다르고 주장에 들어가지 않습니다. 스레드가 여럿이면 더하는
 순서가 달라져 마지막 자리가 움직입니다 — 위 명령이 스레드를 하나로 고정하는 이유입니다.)
