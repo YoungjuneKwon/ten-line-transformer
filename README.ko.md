@@ -31,9 +31,12 @@ loss.backward()
 optimizer.step()
 ```
 
-실제 파일에서는 가운데 여섯 줄이
-[`Transformer.forward()`](transformer.py#L66-L72) 안에 있고, 나머지 넷이
-[`train()`](transformer.py#L80-L94) 에 있습니다.
+위 블록은 학습 한 스텝에서 배관을 걷어낸 것입니다. **열 줄 중 다섯은 파일과 글자
+단위로 같습니다** — `optimizer.zero_grad`, `x = x + ...` 두 줄, `loss.backward()`,
+`optimizer.step()`. 나머지 다섯은 같은 일을 하되 `self.` 와 인자가 붙어 있고,
+손실은 따로 한 줄을 차지하지 않고 `forward` 가 돌려줍니다. 나란히 놓고 보십시오 —
+[`Transformer.forward()`](transformer.py#L66-L72) 와
+[`train()`](transformer.py#L80-L94) 입니다.
 
 ![학습 한 스텝과 각 자리에서의 형상](figures/flow.ko.png)
 

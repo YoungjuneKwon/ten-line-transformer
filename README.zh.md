@@ -31,9 +31,11 @@ loss.backward()
 optimizer.step()
 ```
 
-在真正的文件里，中间六行在
-[`Transformer.forward()`](transformer.py#L66-L72) 里，另外四行在
-[`train()`](transformer.py#L80-L94) 里。
+上面这一块，是把一个训练步的管线拆掉之后的样子。**十行里有五行与文件逐字相同** ——
+`optimizer.zero_grad`、两行 `x = x + ...`、`loss.backward()`、`optimizer.step()`。
+另外五行做的是同一件事，只是带上了 `self.` 和参数，而损失不单占一行，由 `forward`
+返回。请并排对照：[`Transformer.forward()`](transformer.py#L66-L72) 与
+[`train()`](transformer.py#L80-L94)。
 
 ![一个训练步，以及每一处的形状](figures/flow.zh.png)
 

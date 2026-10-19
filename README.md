@@ -33,8 +33,12 @@ loss.backward()
 optimizer.step()
 ```
 
-In the actual file the middle six lines sit in
-[`Transformer.forward()`](transformer.py#L66-L72) and the other four in
+That block is one training step with the plumbing taken out. **Five of the ten
+lines are in the file character for character** — `optimizer.zero_grad`, the two
+`x = x + ...` lines, `loss.backward()` and `optimizer.step()`. The other five do
+the same work with `self.` and the arguments put back, and with the loss coming
+out of `forward` rather than sitting on a line of its own. Read them side by
+side: [`Transformer.forward()`](transformer.py#L66-L72) and
 [`train()`](transformer.py#L80-L94).
 
 ![one training step, with the shape at each point](figures/flow.en.png)

@@ -32,9 +32,12 @@ loss.backward()
 optimizer.step()
 ```
 
-実際のファイルでは、真ん中の六行が
-[`Transformer.forward()`](transformer.py#L66-L72) の中に、残りの四行が
-[`train()`](transformer.py#L80-L94) にあります。
+上のブロックは、学習 1 ステップから配管を取り除いたものです。**十行のうち五行は
+ファイルと文字単位で同じ** です — `optimizer.zero_grad`、`x = x + ...` の二行、
+`loss.backward()`、`optimizer.step()`。残りの五行は同じ仕事を、`self.` と引数を
+付けた形で行い、損失は独立した行ではなく `forward` が返します。並べて見てください —
+[`Transformer.forward()`](transformer.py#L66-L72) と
+[`train()`](transformer.py#L80-L94) です。
 
 ![学習 1 ステップと、各地点での形状](figures/flow.ja.png)
 
