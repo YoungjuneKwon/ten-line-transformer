@@ -3,8 +3,8 @@
 [English](#notice--third-party-attribution) · [한국어](#한국어)
 
 The code in this repository is distributed under the MIT License (see
-`LICENSE`). The book manuscript is not part of this repository and its
-copyright is reserved.
+`LICENSE`). Drafts and notes that are not in this repository are not covered by
+it, and their copyright is reserved.
 
 ---
 
@@ -37,9 +37,6 @@ steps.** Here is what came from where, line by line.
 **`Attention`, `MLP` and the two residual lines carry the strongest lineage.**
 That is computation handed down from the 2017 paper, and there was no reason to
 change it. The rest was rewritten in order to be read.
-
-The judgements behind removing global state and making the names follow the
-shapes are discussed in the book.
 
 ```
 MIT License
@@ -78,8 +75,8 @@ the one distributed widely through Andrej Karpathy's `char-rnn` and
 our judgement is that no separate copyright can be claimed over a concatenation
 of public-domain text.
 
-**Do not replace this file.** Replacing it changes every measured number in the
-book and in this repository. For a reader to get the same numbers it has to be
+**Do not replace this file.** Replacing it changes every measured number in
+this repository. For a reader to get the same numbers it has to be
 the same file, and the md5 above is how that is checked.
 
 ---
@@ -87,7 +84,7 @@ the same file, and the md5 above is how that is checked.
 ## 한국어
 
 이 저장소의 코드는 MIT License 로 배포한다(`LICENSE` 참조).
-책 원고는 이 저장소에 포함되지 않으며 저작권을 유보한다.
+이 저장소에 들어 있지 않은 초고와 메모는 이 라이선스의 적용을 받지 않으며 저작권을 유보한다.
 
 ---
 
@@ -118,8 +115,6 @@ the same file, and the md5 above is how that is checked.
 
 **`Attention`·`MLP`·그리고 잔차 두 줄의 계보가 가장 짙다.** 그 자리는 2017년 논문에서
 이어져 온 계산이라 바꿀 이유가 없었다. 나머지는 읽기 위해 다시 썼다.
-
-전역 변수를 없애고 이름을 형상으로 통일한 판단들은 책 본문에서 다룬다.
 
 ```
 MIT License
@@ -157,5 +152,5 @@ md5    6fb458f1232090904fb40fe944165e91
 두 저장소에는 라이선스 파일이 없으나, 퍼블릭 도메인 텍스트를 이어 붙인 것에는
 별도의 저작권을 주장하기 어렵다고 판단했다.
 
-**이 파일을 교체하지 않는다.** 교체하면 이 책에 실린 모든 측정 숫자가 달라진다.
+**이 파일을 교체하지 않는다.** 교체하면 이 저장소의 모든 측정 숫자가 달라진다.
 독자가 같은 숫자를 얻으려면 같은 파일이어야 한다. 위 md5 가 그 근거다.

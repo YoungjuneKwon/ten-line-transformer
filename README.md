@@ -264,12 +264,6 @@ afternoon and then go check it against Qwen2.5 yourself, that is what this is.
 
 ---
 
-## The book
-
-A book in progress, *Reading a Transformer in Ten Lines* (working title,
-Korean), reads this file from the first line to the last. The code stands on its
-own without the book, and the book is not in this repository.
-
 ## Contributing
 
 A correction is worth more here than a feature — the file is meant to be read,
