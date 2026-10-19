@@ -161,6 +161,18 @@ Thou day the king, and of Englest, is an breath;
 like the names it saw. Both behaviours come from the same ten lines, and you can
 watch them arrive in under five minutes on a laptop.
 
+### Now break it
+
+The fastest way to learn what a line is for is to delete it. Delete
+[line 38](transformer.py#L38), the mask, and the loss falls from 2.54 to
+**0.74** — a number three times better that is worth nothing, because the model
+can now see the answer it is being asked to predict.
+
+**[docs/try-this.md](docs/try-this.md) has six of those**, each a one-file edit
+with the measured result: the mask, attention, the residual, the width, the
+depth, the seed. One of them overturns what a 200-step run appears to say, and
+finding out which one is the exercise.
+
 ---
 
 ## The model
