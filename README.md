@@ -284,3 +284,7 @@ MIT. Third-party attribution is in [NOTICE.md](NOTICE.md).
 
 The figures are generated, not drawn — `python scripts/make_figures.py` redraws
 every one of them in all four languages.
+
+---
+
+Built and maintained by [Second Tiger](https://secondtiger.com), a one-person software label.

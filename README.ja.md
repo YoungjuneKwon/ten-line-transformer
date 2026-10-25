@@ -273,3 +273,7 @@ MIT。第三者の著作物の告知は [NOTICE.md](NOTICE.md) にあります�
 
 上の図は描いたものではなく生成されたものです —
 `python scripts/make_figures.py` が 4 言語分すべてを描き直します。
+
+---
+
+一人のソフトウェアレーベル [Second Tiger](https://secondtiger.com) が制作・保守しています。

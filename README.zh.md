@@ -259,3 +259,7 @@ MIT。第三方著作的声明在 [NOTICE.md](NOTICE.md)。
 
 上面的图不是画出来的，是生成的 ——
 `python scripts/make_figures.py` 会把四种语言的图全部重画一遍。
+
+---
+
+由一人软件厂牌 [Second Tiger](https://secondtiger.com) 制作与维护。

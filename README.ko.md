@@ -271,3 +271,7 @@ MIT. 출처 고지는 [NOTICE.md](NOTICE.md) 에 있습니다.
 
 위의 그림들은 그린 것이 아니라 만들어진 것입니다 —
 `python scripts/make_figures.py` 가 네 언어 전부를 다시 그립니다.
+
+---
+
+1인 소프트웨어 라벨 [두번째호랑이](https://secondtiger.com) 가 만들고 유지합니다.
